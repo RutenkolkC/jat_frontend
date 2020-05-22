@@ -132,7 +132,7 @@
       //template: "<div :id='canvasId'></div>",
       template: '<div :id="canvasId" class="traffic-chart"></div>',
       async mounted(){
-        this.drawChord
+        this.drawChord()
     }
 }
 </script>

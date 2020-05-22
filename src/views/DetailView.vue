@@ -150,7 +150,7 @@
                          size: 21,
                          parent: {cycloComplexSum: 84,
                                   size: 84}},
-      lastSelectedNodeID: 1,
+      lastSelectedNodeID: "1",
       idmap:{
         "father": 42
       },

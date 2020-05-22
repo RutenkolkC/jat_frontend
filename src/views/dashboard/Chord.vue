@@ -11,7 +11,7 @@
 
             </div><!-- /.card-top -->
             <div class="card-body pb-0">
-                <ChordChart3 :nodeID="this.id" myprop="halli hallo bla bla"/>
+                <chord-chart3 :nodeID="this.id" myprop="halli hallo bla bla"/>
             </div>
             <div class="card-footer bg-white br-0 pl-5 pr-5 pt-0 pb-5">
                 <div class="row">
