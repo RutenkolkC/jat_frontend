@@ -2,7 +2,8 @@ var config = {analyzerPort:8079,
               backendPort:8082,
               apiPort:8081,
               refactorPort:8078,
-              gluePort:8080}
+              gluePort:8080,
+              neo4jPort:7474}
 
 var express = require('express')
 var proxyMiddleware = require('http-proxy-middleware')
@@ -24,7 +25,11 @@ app.use(
   proxyMiddleware({ target: 'http://localhost:' + config.refactorPort, changeOrigin: true })
 );
 app.use(
-  ['/', '!/api', "!/analyze", "!/refactor"],
+  '/browser',
+  proxyMiddleware({ target: 'http://localhost:' + config.neo4jPort, changeOrigin: true })
+);
+app.use(
+  ['/', '!/api', "!/analyze", "!/refactor","!/browser"],
   proxyMiddleware({ target: 'http://localhost:' + config.backendPort, changeOrigin: false })
 );
 
