@@ -49,6 +49,8 @@
           :linkLengthFactor="sliderValue"
           :heightFactor="heightAdjust"
           v-on:node-select="nodeSelect"
+          v-on:outgoing-name="setOutgoing"
+          v-on:incoming-name="setIncoming"
           ></d-n-d-tree>
         </div>
       </card>
@@ -58,12 +60,16 @@
               <thead>
               <tr>
                 <td>Selected Name</td>
-                <td>DEPENDS_ON Relation corresponds to Package Hierarchy?</td>
+                <td>Outgoing dependencies (red) from Node</td>
+                <td>Incoming dependencies (green) from Node</td>
               </tr>
               </thead>
               <tbody>
-                <td>{{lastSelectedNode.name}}</td>
-                <td>{{layer_pro_1 * 100}} %</td>
+                <tr>
+                  <td>{{lastSelectedNode.name}}</td>
+                  <td>{{outgoingNodeName}}</td>
+                  <td>{{incomingNodeName}}</td>
+                </tr>
               </tbody>
           </table>
         </div>
@@ -111,6 +117,8 @@
           children:[ {name: "grandson3"}, {name: "grandson4"}]
         }]
       },
+      outgoingNodeName: "",
+      incomingNodeName: "",
       layer_pro_1: 0.0,
       sliderValue: 2.5,
       sliderOptions: {
@@ -241,12 +249,12 @@
           this.lastSelectedNode=in_node
           this.lastSelectedNodeID=+(in_node.name.split(/[()]/))[1];
           this.loadNodeInfo(this.lastSelectedNodeID);
-          var slf = this
-          $.get("api/layer-pro-1/"+this.lastSelectedNodeID,{},function(response){
-            console.log("OUIIII")
-            console.log(response)
-            slf.layer_pro_1=response
-          })
+        },
+        setOutgoing:function(in_name) {
+          this.outgoingNodeName=in_name
+        },
+        setIncoming:function(in_name) {
+          this.incomingNodeName=in_name
         },
         nodeClicked: function(in_data) {
           return 

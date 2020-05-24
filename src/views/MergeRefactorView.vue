@@ -282,8 +282,14 @@
               async: true,
               data: requestObj,
               success: function (response) {
-                console.log("hallo")
-                console.log(response)
+
+                slf.$toasted.show("Merge branch created",
+                  {action : {
+                  text : 'OK',
+                  onClick : (e, toastObject) => {
+                      toastObject.goAway(0);
+                  }},});
+
               }
           })
 

@@ -115,7 +115,11 @@ d3.contextMenu = function (menu, openCallback) {
           updateCallback: function(){},
           updateHeightFactor: function(){},
           centerNodeCallback: function(n){},
-          lastSelectedNode: null
+          lastSelectedNode: null,
+          outgoing_deps: [],
+          incoming_deps: [],
+          outgoing_deps_name :"",
+          incoming_deps_name :""
           }
       },
       watch: {
@@ -130,6 +134,12 @@ d3.contextMenu = function (menu, openCallback) {
             },
             lastSelectedNode: function (val) {
                 this.$emit('node-select',val)
+            },
+            outgoing_deps_name: function (val) {
+                this.$emit('outgoing-name',val)
+            },
+            incoming_deps_name: function (val) {
+                this.$emit('incoming-name',val)
             }
         },
       
@@ -307,6 +317,20 @@ d3.contextMenu = function (menu, openCallback) {
                 // Enter any new links at the parent's previous position.
                 link.enter().insert("path", "g")
                     .attr("class", "link")
+                    .style("stroke", function(d){
+                        var is_out = self.outgoing_deps.some(function([a,b]){ return (d.source.id == a && d.target.id ==b) || (d.source.id == b && d.target.id == a)} )
+                        var is_in = self.incoming_deps.some(function([a,b]){ return (d.source.id == a && d.target.id ==b) || (d.source.id == b && d.target.id == a)} )
+                        
+                        if( is_out && is_in ){
+                            return "purple"
+                        } else if (is_out) {
+                            return "red"
+                        } else if (is_in) {
+                            return "green"
+                        } else {
+                            return ""
+                        }
+                    })
                     .attr("d", function(d) {
                         var o = {
                             x: source.x0,
@@ -734,9 +758,25 @@ d3.contextMenu = function (menu, openCallback) {
                     //disabled: false // optional, defaults to false
                 },                
                 {
-                    title: 'Query this Node in Neo4J Browser',
+                    title: 'Outline outgoing dependencies',
                     action: function(d, i) {
-                        
+                        $.get("api/outgoing-deps/"+d.id,{},function(response){
+                            self.outgoing_deps=response
+                            self.outgoing_deps_name=d.name
+                            update(root);
+
+                        })
+                    },
+                    //disabled: false // optional, defaults to false
+                },
+                {
+                    title: 'Outline incoming dependencies',
+                    action: function(d, i) {
+                        $.get("api/incoming-deps/"+d.id,{},function(response){
+                            self.incoming_deps=response
+                            self.incoming_deps_name=d.name
+                            update(root);
+                        })
                     },
                     //disabled: false // optional, defaults to false
                 },
@@ -957,9 +997,24 @@ d3.contextMenu = function (menu, openCallback) {
                         return d.target.id;
                     });
 
+
                 // Enter any new links at the parent's previous position.
                 link.enter().insert("path", "g")
                     .attr("class", "link")
+                    .style("stroke", function(d){
+                        var is_out = self.outgoing_deps.some(function([a,b]){ return (d.source.id == a && d.target.id ==b) || (d.source.id == b && d.target.id == a)} )
+                        var is_in = self.incoming_deps.some(function([a,b]){ return (d.source.id == a && d.target.id ==b) || (d.source.id == b && d.target.id == a)} )
+                        
+                        if( is_out && is_in ){
+                            return "purple"
+                        } else if (is_out) {
+                            return "red"
+                        } else if (is_in) {
+                            return "green"
+                        } else {
+                            return ""
+                        }
+                    })
                     .attr("d", function(d) {
                         var o = {
                             x: source.x0,
@@ -969,12 +1024,27 @@ d3.contextMenu = function (menu, openCallback) {
                             source: o,
                             target: o
                         });
-                    });
+                    });        
+                    
 
                 // Transition links to their new position.
                 link.transition()
                     .duration(duration)
-                    .attr("d", diagonal);
+                    .attr("d", diagonal)
+                    .style("stroke", function(d){
+                        var is_out = self.outgoing_deps.some(function([a,b]){ return (d.source.id == a && d.target.id ==b) || (d.source.id == b && d.target.id == a)} )
+                        var is_in = self.incoming_deps.some(function([a,b]){ return (d.source.id == a && d.target.id ==b) || (d.source.id == b && d.target.id == a)} )
+                        
+                        if( is_out && is_in ){
+                            return "purple"
+                        } else if (is_out) {
+                            return "red"
+                        } else if (is_in) {
+                            return "green"
+                        } else {
+                            return ""
+                        }
+                    });
 
                 // Transition exiting nodes to the parent's new position.
                 link.exit().transition()
@@ -988,7 +1058,7 @@ d3.contextMenu = function (menu, openCallback) {
                             source: o,
                             target: o
                         });
-                    })
+                    })                    
                     .remove();
 
                 // Stash the old positions for transition.
