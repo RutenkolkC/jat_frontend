@@ -4,7 +4,7 @@ WORKDIR /code
 
 COPY . /code
 
-RUN npm install && npm install node-sass
+RUN npm i -f && npm i -f node-sass
 
 EXPOSE 8082
 
