@@ -17,29 +17,30 @@
             </div>
                 <div class="col-9 col-md-9" v-if="isLocal === 'true'">
                   <select v-model="analyzePath" name="select" id="select" class="form-control">
-                    <option value="1">ProB 2 Kernel Test Environment</option>
-                    <option value="2">Dummy Entry</option>
+                      <template v-for="(item, index) in projects">
+                        <option v-bind:value="item">{{item}}</option>
+                      </template>
                   </select>
                 </div>
               <div class="col-9 col-md-9" v-else>
                 <input v-model="analyzePath" type="text" placeholder="enter git-repo address here" class="form-control">
-                <div class="row col-12 col-md-12">
-                  <!-- <div class="col col-md-3"><label for="selectLg" class=" form-control-label">Select Large</label></div> -->
-                  <input v-model="buildTask" type="text" placeholder="buildtool task (install, shadowjar, assemble, etc)" class="form-control col col-md-6">
-                  <div class="col-12 col-md-6">
-                    <select v-model="buildTask" name="selectTask" id="selectTask" class="form-control form-control">
-                      <template v-for="(items, index) in buildTasks">
-                        <optgroup v-bind:label="items[0]">
-                          <template v-for="(item, index2) in items[1]">
-                            <option v-bind:value="item">{{item}}</option>
-                          </template>
-                        </optgroup>
-                      </template>
-                    </select>
-                  </div>
-                </div>
-                <input v-model="buildDirRelativePath" type="text" placeholder="(Optional) specify build directory" class="form-control">
               </div>
+              <div class="row col-12 col-md-12">
+                <!-- <div class="col col-md-3"><label for="selectLg" class=" form-control-label">Select Large</label></div> -->
+                <input v-model="buildTask" type="text" placeholder="buildtool task (install, shadowjar, assemble, etc)" class="form-control col col-md-6">
+                <div class="col-12 col-md-6">
+                  <select v-model="buildTask" name="selectTask" id="selectTask" class="form-control form-control">
+                    <template v-for="(items, index) in buildTasks">
+                      <optgroup v-bind:label="items[0]">
+                        <template v-for="(item, index2) in items[1]">
+                          <option v-bind:value="item">{{item}}</option>
+                        </template>
+                      </optgroup>
+                    </template>
+                  </select>
+                </div>
+              </div>
+                <input v-model="buildDirRelativePath" type="text" placeholder="(Optional) specify build directory" class="form-control">
               <template v-for="(item, index) in errors">
                   <div class="alert alert-danger" role="alert" >{{item}}</div>
                 </template>
@@ -68,9 +69,11 @@
           buildTasks: [["maven suggestions",["package","install","clean"]],["gradle suggestions",["build","jar","shadowjar"]]],
           errors: [],
           isLocal: 'true',
+          attemptBuild: 'true',
           analyzePath: '',
           buildTask: '',
-          buildDirRelativePath: ''
+          buildDirRelativePath: '',
+          projects: ''
           
         }
       },
@@ -97,18 +100,29 @@
             this.errors = ["You must supply a build task for the application to be built."]
             return
           }
-          if(!(this.analyzePath.startsWith("http"))){
-            this.errors = ["You must supply a http link to the git repository (ssh causes docker issues)."]
-            return
-          }
 
-          const clone = JSON.parse(JSON.stringify(this.$data)) //lmao. i have no idea how to js. I fear this is the "best" solution in some sense
-          delete clone.buildTasks
-          $.post('/api/analyze',clone)
+          if(this.isLocal){
+            var clone = JSON.parse(JSON.stringify(this.$data)) //lmao. i have no idea how to js. I fear this is the "best" solution in some sense
+            delete clone.buildTasks
+            $.post('/api/analyze',clone)
+          } else {
+
+            if(!(this.analyzePath.startsWith("http"))){
+              this.errors = ["You must supply a http link to the git repository (ssh causes docker issues)."]
+              return
+            }
+
+            const clone = JSON.parse(JSON.stringify(this.$data)) //lmao. i have no idea how to js. I fear this is the "best" solution in some sense
+            delete clone.buildTasks
+            $.post('/api/analyze',clone)
+          }
         }
       },
       mounted: function () {
-        
+        var slf = this;
+        $.get('/api/pre-configured', function (response) {
+          slf.projects = response;
+        })
       },
       beforeDestroy: function(){
         
