@@ -72,14 +72,15 @@
 
     <div class="row">
 
-          <Chord :id="lastSelectedNodeID"
+          <Chord :id="lastSelectedNodeIDPackage"
                  :cycloComplexSum="lastSelectedNode.cycloComplexSum"
                  :size="lastSelectedNode.size"
                  :parentCycloComplexSum="lastSelectedNode.parent.cycloComplexSum"
                  :parentSize="lastSelectedNode.parent.size"/>
 
-          <edge-bundling-card :nodeid="lastSelectedNodeID"/>
-          <arc-diagram-card :nodeid="lastSelectedNodeID"/>
+          <edge-bundling-card :nodeid="lastSelectedNodeIDPackage"/>
+          <arc-diagram-card :nodeid="lastSelectedNodeIDPackage" :cardTitle="'Dependencies in this package'"/>
+          <arc-diagram-card  v-if="nodeInfo.labels.includes('Package')" :nodeid="lastSelectedNodeIDPackage" :apiQuery="'api/inter-package-fas/'" :cardTitle="'Dependencies between this package and direct dependencies'"/>
       </div>
     
   </div>
@@ -151,6 +152,7 @@
                          parent: {cycloComplexSum: 84,
                                   size: 84}},
       lastSelectedNodeID: "1",
+      lastSelectedNodeIDPackage: "1",
       idmap:{
         "father": 42
       },
@@ -178,6 +180,10 @@
           this.lastSelectedNodeID=+(in_node.name.split(/[()]/))[1];
           this.loadNodeInfo(this.lastSelectedNodeID);
           var slf = this
+          $.get("api/package-of/"+this.lastSelectedNodeID,{},function(response){
+            slf.lastSelectedNodeIDPackage=response
+          })
+
           $.get("api/layer-pro-1/"+this.lastSelectedNodeID,{},function(response){
             slf.layer_pro_1=response
           })
@@ -261,7 +267,12 @@
           this.lastSelectedNodeID = +this.$route.query.id;
           this.loadNodeInfo(this.lastSelectedNodeID);
           var slf = this
-                    $.get("api/layer-pro-1/"+this.lastSelectedNodeID,{},function(response){
+
+          $.get("api/package-of/"+this.lastSelectedNodeID,{},function(response){
+            slf.lastSelectedNodeIDPackage=response
+          })
+
+          $.get("api/layer-pro-1/"+this.lastSelectedNodeID,{},function(response){
             slf.layer_pro_1=response
           })
           $.get("api/layer-pro-2/"+this.lastSelectedNodeID,{},function(response){

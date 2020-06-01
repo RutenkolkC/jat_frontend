@@ -2,7 +2,7 @@
     <div class="col-lg-12">
         <div class="card">
             <div class="card-top">
-                <h4 class="card-title m-0 float-left">Arc Diagram of node </h4><!-- /.content-title -->
+                <h4 class="card-title m-0 float-left">{{cardTitle}} </h4><!-- /.content-title -->
                 <div class="float-right text-r">
                     <button class="content-settings" data-toggle="tooltip" data-placement="top" title="Settings"><i class="fa fa-cog"></i></button>
                     <button class="content-collapse" data-toggle="tooltip" data-placement="top" title="Collapse"><i class="fa fa-angle-down"></i></button>
@@ -11,7 +11,7 @@
 
             </div><!-- /.card-top -->
             <div class="card-body pb-0">
-                <arc-diagram :nodeID="+nodeid"/>
+                <arc-diagram :nodeID="+nodeid" :apiQuery="apiQuery"/>
             </div>
 
 
@@ -29,7 +29,15 @@ export default{
         nodeid: {
             type: Number,
             default: 146
-        }
+        },
+        apiQuery: {
+            type: String,
+            default:  "api/package-listing-by-id/"
+        },
+        cardTitle: {
+            type: String,
+            default:  "Arc Diagram of node"
+        },
     },
     //props: ['icon', 'symbol', 'counter', 'title', 'bgclass', 'hasPercentage', 'canvasId'],
     components:{

@@ -1,45 +1,51 @@
 <template>
+    <div>
 
-    <div class="row">
-
-
-        <info
-            v-if="renderComponent"
-            icon="icon-lg pe-7f-users"
-            bgclass="bg-flat-color-1"
-            v-bind:counter="totalNodes"
-            title="Total Nodes"
-        >
-        </info>
-
-        <info
-            v-if="renderComponent"
-            icon="icon-lg pe-7f-users"
-            bgclass="bg-flat-color-2"
-            v-bind:counter="totalTypes"
-            title="Total Types"
-        >
-        </info>
-        <info
-            v-if="renderComponent"
-            icon="icon-lg pe-7f-users"
-            bgclass="bg-flat-color-3"
-            v-bind:counter="totalArtifacts"
-            title="Total Artifacts"
-        >
-        </info>
-        <info
-            v-if="renderComponent"
-            icon="icon-lg pe-7f-users"
-            bgclass="bg-flat-color-3"
-            v-bind:counter="totalPackages"
-            title="Total Packages"
-        >
-        </info>
+        <div class="row">
 
 
+            <info
+                v-if="renderComponent"
+                icon="icon-lg pe-7f-users"
+                bgclass="bg-flat-color-1"
+                v-bind:counter="totalNodes"
+                title="Total Nodes"
+            >
+            </info>
+
+            <info
+                v-if="renderComponent"
+                icon="icon-lg pe-7f-users"
+                bgclass="bg-flat-color-2"
+                v-bind:counter="totalTypes"
+                title="Total Types"
+            >
+            </info>
+            <info
+                v-if="renderComponent"
+                icon="icon-lg pe-7f-users"
+                bgclass="bg-flat-color-3"
+                v-bind:counter="totalArtifacts"
+                title="Total Artifacts"
+            >
+            </info>
+            <info
+                v-if="renderComponent"
+                icon="icon-lg pe-7f-users"
+                bgclass="bg-flat-color-3"
+                v-bind:counter="totalPackages"
+                title="Total Packages"
+            >
+            </info>
+
+
+        </div>
+
+
+        <div class="row">
+            <arc-diagram-card :nodeid="null" :apiQuery="'api/inter-package-fas-all'" :cardTitle="'All inter-package dependencies'"/>
+        </div>
     </div>
-
 </template>
 
 <script>
@@ -52,6 +58,7 @@ import Chord from './dashboard/Chord.vue'
 import EarningStats from './dashboard/EarningStats.vue';
 import Download from './dashboard/Download.vue';
 import Revenue from './dashboard/Revenue.vue';
+import ArcDiagramCard from './dashboard/ArcDiagramCard'
 
 
 export default{
@@ -75,7 +82,8 @@ export default{
         EarningStats,
         Download,
         Revenue,
-        Chord
+        Chord,
+        ArcDiagramCard
     }, mounted(){
         var slf=this;
         var components = 4

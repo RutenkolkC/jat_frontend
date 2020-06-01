@@ -2,7 +2,8 @@
 -->
 
 <template>
-	<div id="arc-diagram"></div>
+	<!-- <div id="arc-diagram"></div> -->
+	<div :id="canvasId"></div>
 </template>
 
 <script>
@@ -22,14 +23,16 @@
 
       draw: async function(){
 
-        d3.select("#arc-diagram").selectAll("svg").remove();
+        d3.select("#"+this.canvasId).selectAll("svg").remove();
 
         var margin = {top: 0, right: 30, bottom: 200, left: 120},
-  width = 1250 - margin.left - margin.right,
+  //width = 1250 - margin.left - margin.right,
+  width = document.getElementById(this.canvasId).clientWidth - margin.left - margin.right,
+  
   height = 750 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-var svg = d3.select("#arc-diagram")
+var svg = d3.select("#"+this.canvasId)
   .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -37,13 +40,12 @@ var svg = d3.select("#arc-diagram")
     .attr("transform",
           "translate(" + margin.left + "," + margin.top + ")");
 
-  console.log("this gets executed!!!")
-// Read dummy data
-//var data = await d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/data_researcherNetwork.json")
-var data = await d3.json("/api/package-listing-by-id/"+this.nodeID)
+var querystring = this.apiQuery
+if (this.nodeID){
+  querystring += this.nodeID
+}
+var data = await d3.json(querystring)
 
-  console.log(data)
-  console.log("this gets executed inside!!!!")
   // List of node names
   var allNodes = data.nodes.map(function(d){return d.name})
 
@@ -86,12 +88,14 @@ var data = await d3.json("/api/package-listing-by-id/"+this.nodeID)
         'A',                            // This means we're gonna build an elliptical arc
         (start - end)/2, ',',    // Next 2 lines are the coordinates of the inflexion point. Height of this point is proportional with start - end distance
         (start - end)/2, 0, 0, ',',
-        start < end ? 1 : 0, end, ',', height-30] // We always want the arc on top. So if end is before start, putting 0 here turn the arc upside down.
+        //start < end ? 1 : 0, end, ',', height-30] // We always want the arc on top. So if end is before start, putting 0 here turn the arc upside down.
+        0, end, ',', height-30] // We always want the arc on top. So if end is before start, putting 0 here turn the arc upside down.
         .join(' ');
     })
     .style("fill", "none")
     .attr("stroke", function(d){return x(idToNode[d.source].name) < x(idToNode[d.target].name) ? "grey" : "red"})
     .style("stroke-width", 2)
+    .style("stroke-opacity", 0.3)
 
   // Add the circle for the nodes
   var nodes = svg
@@ -128,8 +132,15 @@ var data = await d3.json("/api/package-listing-by-id/"+this.nodeID)
         .style('opacity', 1)
       // Highlight the connections
       links
-        .style('stroke', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? color(d.grp) : '#b8b8b8';})
-        .style('stroke-opacity', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 1 : .2;})
+        .style('stroke', function (link_d) { 
+
+          var start = x(idToNode[link_d.source].name)    // X position of start node on the X axis
+          var end = x(idToNode[link_d.target].name)      // X position of end node
+          return start < end ? color(1) : color(2);
+          //return link_d.source === d.id || link_d.target === d.id ? color(d.grp) : '#b8b8b8';
+        
+        })
+        .style('stroke-opacity', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 1 : .1;})
         .style('stroke-width', function (link_d) { return link_d.source === d.id || link_d.target === d.id ? 4 : 2;})
       labels
         .style("font-size", function(label_d){ return label_d.name === d.name ? 16 : 2 } )
@@ -140,7 +151,7 @@ var data = await d3.json("/api/package-listing-by-id/"+this.nodeID)
       nodes.style('opacity', 1)
       links
         .style("stroke", function(d){return x(idToNode[d.source].name) < x(idToNode[d.target].name) ? "grey" : "red"})
-        .style('stroke-opacity', .8)
+        .style('stroke-opacity', .3)
         .style('stroke-width', '2')
       labels
         .style("font-size", 12 )
@@ -156,12 +167,17 @@ var data = await d3.json("/api/package-listing-by-id/"+this.nodeID)
             type: Number,
              default: 146
            },
+           apiQuery: {
+            type: String,
+             default:  "api/package-listing-by-id/"
+           },
+
      },
       data(){
         return {
             name: 'dashboard-traffic-chart',
             myprop: 'aha?',
-            canvasId: 'arc-diagram-chart'
+            canvasId: 'arc-diagram-chart'+this._uid
         }
       },
       watch: {
@@ -186,7 +202,7 @@ var data = await d3.json("/api/package-listing-by-id/"+this.nodeID)
 
 .link {
   stroke: steelblue;
-  stroke-opacity: 0.5;
+  stroke-opacity: 0.3;
   fill: none;
   pointer-events: none;
 }
