@@ -77,7 +77,7 @@
       },
       methods: {
         loadData: function () {
-          $.get('/analyze/status', function (response) {
+          $.get('/api/progress-status', function (response) {
             this.dataTable = response;
           }.bind(this));
         },
